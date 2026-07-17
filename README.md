@@ -4,7 +4,7 @@ An AI-powered chatbot that answers questions about FIA Formula 1 regulations usi
  
 > **Why F1 regulations?** LLMs can't reliably answer detailed questions about specific regulation clauses, minimum car weights, or cost cap exceptions. RAG solves this by grounding the model in the actual source documents — the exact use case it was designed for.
 
-#Note
+# Note
 
 This is in progress public version, the site hosted is based on the private repository. This is so you can download it yourself, follow the future quickstart, and import your own keys.
  
