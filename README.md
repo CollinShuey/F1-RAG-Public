@@ -10,18 +10,18 @@ This is in progress public version, the site hosted is based on the private repo
  
 ## How it works
  
-1. **Ingest** — FIA regulation PDFs are parsed and split into overlapping text chunks
-2. **Embed** — Each chunk is converted to a vector embedding capturing its semantic meaning
-3. **Store** — Vectors are indexed in ChromaDB for fast similarity search
-4. **Retrieve** — User queries are embedded and matched against stored chunks using cosine similarity
-5. **Generate** — The top-k relevant chunks are injected into a prompt template, and the LLM generates a grounded answer with source references
+1. **Ingest**: FIA regulation PDFs are parsed and split into overlapping text chunks
+2. **Embed**: Each chunk is converted to a vector embedding capturing its semantic meaning
+3. **Store**: Vectors are indexed in ChromaDB for fast similarity search
+4. **Retrieve**: User queries are embedded and matched against stored chunks using cosine similarity
+5. **Generate**: The top-k relevant chunks are injected into a prompt template, and the LLM generates a grounded answer with source references
 ## Tech stack
  
-- **Python** — core application logic
-- **ChromaDB** — local vector database for embedding storage and similarity search
-- **Claude API** — LLM for answer generation
-- **Django** — web interface with chat UI
-- **PyMuPDF** — PDF text extraction
+- **Python**: core application logic
+- **ChromaDB**: local vector database for embedding storage and similarity search
+- **Claude API**: LLM for answer generation
+- **Django**: web interface with chat UI
+- **PyMuPDF**: PDF text extraction
 ## Project structure
  
 ```
