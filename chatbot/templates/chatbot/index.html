@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>F1 Regulations Bot</title>
+    <style>
+        :root {
+            --bg: #0a0d12;
+            --surface: #121824;
+            --surface-2: #0e131c;
+            --border: rgba(255, 255, 255, 0.07);
+            --border-strong: rgba(255, 255, 255, 0.13);
+            --text: #e8ebf1;
+            --muted: #828b9c;
+            --faint: #565f70;
+            --accent: #e10600;
+            --accent-soft: rgba(225, 6, 0, 0.14);
+            --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body { height: 100%; }
+
+        body {
+            margin: 0;
+            position: relative;
+            font-family: var(--sans);
+            color: var(--text);
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+                var(--bg);
+            background-size: 44px 44px, 44px 44px, auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Red glow: a fixed-height band pinned to the top of the page.
+           It scrolls off as you go down instead of stretching over a tall body. */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 520px;
+            background: radial-gradient(1000px 560px at 50% -12%, rgba(225, 6, 0, 0.16), transparent 66%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ---------- Header ---------- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 13, 18, 0.78);
+            backdrop-filter: blur(12px);
+        }
+
+        header::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(225, 6, 0, 0.55), rgba(225, 6, 0, 0.08) 34%, transparent 60%);
+        }
+
+        .brand { display: flex; align-items: center; gap: 14px; }
+
+        .brand .mark {
+            width: 4px;
+            height: 36px;
+            border-radius: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 14px var(--accent-soft);
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .brand .tag {
+            margin: 3px 0 0;
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            color: var(--muted);
+        }
+
+        .session {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            padding: 8px 14px;
+            line-height: 15px;
+            border: 1px solid var(--border-strong);
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        .session-tag {
+            color: var(--faint);
+            text-transform: uppercase;
+        }
+
+        .session-time {
+            position: relative;
+            padding-left: 11px;
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .session-time::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 12px;
+            background: var(--border-strong);
+        }
+
+        .actions { display: flex; align-items: center; gap: 12px; }
+
+        .info-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+            border: 1px solid var(--border-strong);
+            border-radius: 999px;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .info-btn:hover { color: var(--text); border-color: rgba(225, 6, 0, 0.5); }
+
+        .info-icon { width: 15px; height: 15px; flex-shrink: 0; }
+
+        /* ---------- Layout ---------- */
+        main {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            width: 100%;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 28px 24px 24px;
+        }
+
+        .intro {
+            position: relative;
+            font-family: var(--mono);
+            font-size: 12px;
+            line-height: 1.75;
+            color: var(--faint);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.022), transparent);
+            padding: 16px 18px;
+            margin-bottom: 32px;
+        }
+
+        /* Four corner ticks — AuthKit-style technical detail */
+        .intro::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            pointer-events: none;
+            opacity: 0.55;
+            background-repeat: no-repeat;
+            background-image:
+                radial-gradient(circle at 0 0, var(--muted) 1.4px, transparent 2.2px),
+                radial-gradient(circle at 100% 0, var(--muted) 1.4px, transparent 2.2px),
+                radial-gradient(circle at 0 100%, var(--muted) 1.4px, transparent 2.2px),
+                radial-gradient(circle at 100% 100%, var(--muted) 1.4px, transparent 2.2px);
+        }
+
+        .intro .kicker {
+            display: block;
+            color: var(--accent);
+            letter-spacing: 0.18em;
+            margin-bottom: 9px;
+            opacity: 0.85;
+        }
+
+        .intro b { color: var(--muted); font-weight: 600; }
+
+        #chat { display: flex; flex-direction: column; }
+
+        /* ---------- Messages ---------- */
+        .msg {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .q {
+            align-self: flex-end;
+            max-width: 86%;
+            padding: 12px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            border-radius: 14px 14px 4px 14px;
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .a {
+            align-self: flex-start;
+            max-width: 100%;
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text);
+            padding-left: 16px;
+            border-left: 2px solid var(--accent);
+        }
+
+        .a::before {
+            content: "RESPONSE";
+            display: block;
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            color: var(--faint);
+            margin-bottom: 9px;
+        }
+
+        /* ---------- Rendered markdown inside answers ---------- */
+        .a > *:first-child { margin-top: 0; }
+        .a > *:last-child { margin-bottom: 0; }
+
+        .a p { margin: 0 0 12px; }
+
+        .a h1, .a h2, .a h3, .a h4 {
+            margin: 18px 0 8px;
+            line-height: 1.3;
+            font-weight: 700;
+        }
+        .a h1 { font-size: 19px; }
+        .a h2 { font-size: 17px; }
+        .a h3 { font-size: 15px; }
+        .a h4 { font-size: 14px; }
+
+        .a ul, .a ol { margin: 0 0 12px; padding-left: 22px; }
+        .a li { margin: 4px 0; }
+        .a li::marker { color: var(--muted); }
+
+        .a a {
+            color: #ff6b63;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .a strong { color: #fff; font-weight: 700; }
+        .a em { font-style: italic; }
+
+        .a code {
+            font-family: var(--mono);
+            font-size: 0.88em;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            padding: 1px 5px;
+        }
+
+        .a pre {
+            margin: 0 0 12px;
+            padding: 12px 14px;
+            background: var(--surface-2);
+            border: 1px solid var(--border-strong);
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+        .a pre code {
+            background: none;
+            border: 0;
+            padding: 0;
+            font-size: 12.5px;
+            color: var(--text);
+        }
+
+        .a blockquote {
+            margin: 0 0 12px;
+            padding-left: 12px;
+            border-left: 2px solid var(--border-strong);
+            color: var(--muted);
+        }
+
+        .a table {
+            border-collapse: collapse;
+            margin: 0 0 12px;
+            font-size: 13px;
+        }
+        .a th, .a td {
+            border: 1px solid var(--border-strong);
+            padding: 6px 10px;
+            text-align: left;
+        }
+        .a th { background: var(--surface); }
+
+        .a hr { border: 0; border-top: 1px solid var(--border); margin: 16px 0; }
+
+        /* ---------- Loading dots ---------- */
+        .dots { display: inline-flex; gap: 6px; align-items: center; height: 1.2em; }
+
+        .dots i {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.3;
+            animation: blink 1.3s infinite ease-in-out;
+        }
+
+        .dots i:nth-child(2) { animation-delay: 0.18s; }
+        .dots i:nth-child(3) { animation-delay: 0.36s; }
+
+        @keyframes blink {
+            0%, 75%, 100% { opacity: 0.25; transform: translateY(0); }
+            35% { opacity: 1; transform: translateY(-4px); }
+        }
+
+        /* ---------- Sources ---------- */
+        .sources {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+            padding-left: 16px;
+        }
+
+        .sources-label {
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: 0.16em;
+            color: var(--faint);
+        }
+
+        .tag {
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.03em;
+            color: var(--muted);
+            padding: 3px 9px;
+            border: 1px solid var(--border-strong);
+            border-radius: 5px;
+            background: var(--surface-2);
+        }
+
+        /* ---------- Composer ---------- */
+        .composer {
+            position: sticky;
+            bottom: 0;
+            z-index: 5;
+            border-top: 1px solid var(--border);
+            background: rgba(10, 13, 18, 0.82);
+            backdrop-filter: blur(12px);
+        }
+
+        .composer .row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 16px 24px;
+        }
+
+        #question {
+            flex: 1;
+            min-width: 0;
+            padding: 14px 18px;
+            font-family: var(--sans);
+            font-size: 15px;
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid var(--border-strong);
+            border-radius: 12px;
+            outline: none;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.28);
+            transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+        }
+
+        #question::placeholder { color: var(--faint); }
+
+        #question:focus {
+            border-color: rgba(225, 6, 0, 0.55);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.28), 0 0 0 3px var(--accent-soft);
+        }
+
+        #send {
+            flex-shrink: 0;
+            padding: 0 24px;
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #fff;
+            background: linear-gradient(180deg, #f5211a 0%, #cc0500 100%);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.28),
+                0 4px 16px rgba(225, 6, 0, 0.24);
+            transition: filter 0.15s, box-shadow 0.15s, transform 0.05s, opacity 0.15s;
+        }
+
+        #send:hover {
+            filter: brightness(1.07);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.32),
+                0 6px 22px rgba(225, 6, 0, 0.34);
+        }
+
+        #send:active { transform: translateY(1px); }
+
+        #send:disabled { opacity: 0.45; cursor: default; filter: none; box-shadow: none; }
+
+        /* ---------- About modal ---------- */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(5, 7, 11, 0.66);
+            backdrop-filter: blur(6px);
+        }
+
+        .overlay.open { display: flex; }
+
+        .modal {
+            position: relative;
+            width: 100%;
+            max-width: 540px;
+            max-height: 86vh;
+            overflow-y: auto;
+            padding: 28px 28px 30px;
+            background: linear-gradient(180deg, var(--surface), var(--surface-2));
+            border: 1px solid var(--border-strong);
+            border-radius: 16px;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+            animation: modalIn 0.18s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(8px) scale(0.99); }
+            to { opacity: 1; transform: none; }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--muted);
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .modal-close:hover { color: var(--text); border-color: var(--border-strong); }
+
+        .modal-kicker {
+            display: block;
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.18em;
+            color: var(--accent);
+            opacity: 0.85;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            margin: 0 0 16px;
+            font-size: 23px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .modal-h {
+            margin: 22px 0 7px;
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .modal p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.72;
+            color: #c6ccd8;
+        }
+
+        .modal p b { color: var(--text); }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 640px) {
+            header { padding: 12px 14px; gap: 10px; }
+            .brand { gap: 11px; }
+            .brand .mark { height: 30px; }
+            .brand h1 { font-size: 14px; }
+            .brand .tag { display: none; }
+            .actions { gap: 8px; }
+            .info-label { display: none; }
+            .info-btn { padding: 8px; }
+            .session { padding: 8px 12px; gap: 8px; }
+            .session-tag { display: none; }
+            .session-time { padding-left: 0; }
+            .session-time::before { display: none; }
+            main { padding: 22px 16px 16px; }
+            .composer .row { padding: 12px 16px; }
+            .q { max-width: 100%; }
+            #send { padding: 0 18px; }
+            .modal { padding: 22px 20px 24px; }
+            .modal-title { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <span class="mark"></span>
+            <div>
+                <h1>Formula 1 Regulations AI</h1>
+                <p class="tag">Sporting &amp; Technical Regulations · RAG Assistant</p>
+            </div>
+        </div>
+        <div class="actions">
+            <button class="info-btn" id="infoBtn" aria-label="About this project" aria-haspopup="dialog">
+                <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M12 11.2v4.6"></path>
+                    <circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"></circle>
+                </svg>
+                <span class="info-label">About</span>
+            </button>
+            <div class="session">
+                <span class="session-tag">Model</span>
+                <span class="session-time">Claude Haiku 4.5</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="intro">
+            <span class="kicker">// Instructions</span>
+            Ask about the <b>FIA Formula 1 regulations</b>.<br>
+            e.g. &ldquo;What is the minimum weight of the car?&rdquo; · &ldquo;How does the cost cap work?&rdquo;
+        </div>
+        <div id="chat"></div>
+    </main>
+
+    <div class="composer">
+        <div class="row">
+            <input id="question" placeholder="Ask about the F1 regulations..." autofocus>
+            <button id="send">Ask</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+            <button class="modal-close" id="modalClose" aria-label="Close">&#10005;</button>
+            <span class="modal-kicker">// About this project</span>
+            <h2 class="modal-title" id="aboutTitle">F1 Regs AI</h2>
+            <p>An AI-powered chatbot that answers questions about FIA Formula 1 regulations using
+               <b>Retrieval-Augmented Generation (RAG)</b>. Built from scratch with Python and ChromaDB,
+               with no frameworks, to deeply understand the RAG pipeline, then refactored with LangChain
+               for comparison.</p>
+
+            <h3 class="modal-h">Why F1 regulations?</h3>
+            <p>LLMs weren't trained on the current regulations, so they simply don't have this information,
+               and the data they were trained on is usually a year or two out of date. That makes them
+               unreliable on detailed questions about specific clauses, minimum car weights, or cost cap
+               exceptions. RAG solves this by grounding the model in the actual source documents, the exact
+               use case it was designed for.</p>
+
+            <h3 class="modal-h">How it saves tokens</h3>
+            <p>The regulations run to hundreds of pages. Feeding all of that to the model on every question
+               would be slow and expensive. Instead, the documents are split into chunks and stored as vectors
+               in a vector database. When you ask something, a nearest-neighbor (KNN) search retrieves only the
+               handful of most relevant passages and sends just those to the model. That keeps the context
+               small, cuts token usage and cost, and keeps every answer grounded in the exact rules that matter.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+    <script>
+        const chat = document.getElementById("chat");
+        const input = document.getElementById("question");
+        const button = document.getElementById("send");
+
+        // About modal
+        const overlay = document.getElementById("overlay");
+        document.getElementById("infoBtn").addEventListener("click", () => overlay.classList.add("open"));
+        document.getElementById("modalClose").addEventListener("click", () => overlay.classList.remove("open"));
+        overlay.addEventListener("click", e => { if (e.target === overlay) overlay.classList.remove("open"); });
+        document.addEventListener("keydown", e => { if (e.key === "Escape") overlay.classList.remove("open"); });
+
+        function getCookie(name) {
+            const match = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
+            return match ? match.pop() : "";
+        }
+
+        async function ask() {
+            const question = input.value.trim();
+            if (!question) return;
+
+            // show the question immediately, with an animated loading state
+            const block = document.createElement("div");
+            block.className = "msg";
+            block.innerHTML = `<div class="q">${question}</div><div class="a"><span class="dots"><i></i><i></i><i></i></span></div>`;
+            chat.appendChild(block);
+            const answerEl = block.querySelector(".a");
+
+            input.value = "";
+            button.disabled = true;
+
+            try {
+                const res = await fetch("/ask/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken"),
+                    },
+                    body: JSON.stringify({ question }),
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    answerEl.textContent = "Error: " + data.error;
+                } else {
+                    // render markdown, sanitized (LLM output → prevent XSS)
+                    answerEl.innerHTML = DOMPurify.sanitize(marked.parse(data.answer));
+                    const secs = [...new Set(data.sources.map(s => s.section).filter(Boolean))];
+                    if (secs.length) {
+                        const src = document.createElement("div");
+                        src.className = "sources";
+                        const label = document.createElement("span");
+                        label.className = "sources-label";
+                        label.textContent = "SOURCES";
+                        src.appendChild(label);
+                        secs.forEach(sec => {
+                            const tag = document.createElement("span");
+                            tag.className = "tag";
+                            tag.textContent = sec;
+                            src.appendChild(tag);
+                        });
+                        block.appendChild(src);
+                    }
+                }
+            } catch (e) {
+                answerEl.textContent = "Request failed: " + e;
+            } finally {
+                button.disabled = false;
+                input.focus();
+            }
+        }
+
+        button.addEventListener("click", ask);
+        input.addEventListener("keydown", e => { if (e.key === "Enter") ask(); });
+    </script>
+</body>
+</html>

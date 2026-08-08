@@ -1,0 +1,11 @@
+[
+  {"q": "What is the minimum mass of the car during qualifying sessions?", "expect_substring": "726kg", "expect_section": "C4.1"},
+  {"q": "What is the minimum mass of the car in sessions other than qualifying?", "expect_substring": "724kg", "expect_section": "C4.1"},
+  {"q": "What happens to the minimum mass when a Heat Hazard is declared?", "expect_substring": "Heat Hazard Mass", "expect_section": "C4.1"},
+  {"q": "How is the Nominal Tyre Mass determined?", "expect_substring": "sample of 50", "expect_section": "C4.7"},
+  {"q": "How much fuel may be kept outside the Survival Cell?", "expect_substring": "0.25 litres", "expect_section": "C5.9.6"},
+  {"q": "What is the maximum internal pressure allowed on the fuel bladder?", "expect_substring": "1.0 barG", "expect_section": "C6.1.5"},
+  {"q": "What are the requirements for the rear impact structure tether?", "expect_substring": "24kN", "expect_section": "C14.4.2"},
+  {"q": "What is the required thickness of the Plank Assembly?", "expect_substring": "must be 10mm", "expect_section": "C3.6.1"},
+  {"q": "How is fuel mass flow assessed for compliance?", "expect_substring": "Fuel Flow Meter", "expect_section": "C5.2.6"}
+]
