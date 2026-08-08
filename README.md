@@ -2,11 +2,13 @@
  
 An AI-powered chatbot that answers questions about FIA Formula 1 regulations using Retrieval-Augmented Generation (RAG). Built from scratch with Python and ChromaDB, no frameworks, to deeply understand the RAG pipeline, then refactored with LangChain for comparison.
  
-> **Why F1 regulations?** LLMs can't reliably answer detailed questions about specific regulation clauses, minimum car weights, or cost cap exceptions. RAG solves this by grounding the model in the actual source documents — the exact use case it was designed for.
+> **Why F1 regulations?** LLMs can't reliably answer detailed questions about specific regulation clauses, minimum car weights, or cost cap exceptions. RAG solves this by grounding the model in the actual source documents, the exact use case it was designed for.
 
 ## Note
 
-This is in progress public version, the site hosted is based on the private repository. This is so you can download it yourself, follow the future quickstart, and import your own keys.
+This is in progress public version, the site hosted is based on the private repository. This is so you can download it yourself, follow the quickstart below, and import your own keys.
+
+The hosted site can found at formula1-rag.onrender.com
  
 ## How it works
  
