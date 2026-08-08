@@ -24,21 +24,82 @@ The hosted site can found at formula1-rag.onrender.com
 - **Claude API**: LLM for answer generation
 - **Django**: web interface with chat UI
 - **PyMuPDF**: PDF text extraction
-## Project structure
- 
-```
-f1-rag/
-├── data/regulations/       # FIA regulation PDFs
-├── src/
-│   ├── ingest.py           # PDF → text extraction pipeline
-│   ├── chunker.py          # text splitting with configurable size/overlap
-│   ├── embedder.py         # embedding API calls
-│   ├── retriever.py        # ChromaDB similarity search
-│   ├── generator.py        # prompt construction + LLM API calls
-│   └── chat.py             # CLI chat interface
-├── web/                    # Django app (chat UI)
-├── .env.example
-├── requirements.txt
-└── README.md
-```
- 
+
+
+## Quick start (run it locally)
+
+### Prerequisites
+
+- Python 3.12
+- An Anthropic API key ([console.anthropic.com](https://console.anthropic.com)), used for answer generation. A few dollars of credit is plenty; questions cost fractions of a cent on Claude Haiku.
+- The FIA regulation PDFs (see step 4, you download these yourself; they aren't included in this repo).
+
+### 1. Clone and enter the project
+
+    git clone this repo
+
+### 2. Create and activate a virtual environment
+
+    python -m venv .venv
+
+    # Windows (PowerShell)
+    .venv\Scripts\Activate.ps1
+
+    # macOS / Linux
+    source .venv/bin/activate
+
+### 3. Install dependencies
+
+    pip install -r requirements.txt
+
+### 4. Add the regulation PDFs
+
+The FIA regulations are copyrighted, so they aren't distributed here, download them yourself (they're free public PDFs) from the FIA regulations page: https://www.fia.com/regulation/category/110
+
+Create a `data/regulations/` folder and drop the PDFs in:
+
+    data/regulations/
+    ├── FIA F1 Technical Regulations.pdf
+    ├── FIA F1 Sporting Regulations.pdf
+    ├── FIA F1 General Regulations.pdf
+    └── FIA F1 Financial Regulations.pdf
+
+Any subset works, the pipeline ingests whatever PDFs are in that folder. Grab the most recent issue of each.
+
+### 5. Add your API key
+
+Create a `.env` file in the project root:
+
+    ANTHROPIC_API_KEY=sk-ant-your-key-here
+    DEBUG=True
+
+`.env` is gitignored, your key never leaves your machine. `DEBUG=True` is needed for local development (production settings force HTTPS, which breaks local `runserver`).
+
+### 6. Build the vector index
+
+This reads the PDFs, chunks them on their article structure, embeds the chunks, and stores everything in a local ChromaDB. Run it once (re-run only when the PDFs change):
+
+    python ingest.py
+
+The first run downloads a small embedding model (~80 MB) and creates a `chroma_db/` folder. When it prints the number of embedded chunks, the index is built.
+
+### 7. Ask it questions
+
+**Command line:**
+
+    python chat.py
+
+Then type questions like _"What is the minimum mass of the car during qualifying?"_ or _"How is the Nominal Tyre Mass determined?"_. Add `--verbose` to also see the retrieved chunks and their sections.
+
+**Web interface:**
+
+    python manage.py migrate      # first time only, sets up Django's built-in tables
+    python manage.py runserver
+
+Open http://127.0.0.1:8000 and ask questions in the browser. Answers render with their cited article numbers underneath.
+
+### (Optional) Run the evaluation
+
+The `eval/` folder contains a test set and a harness that measures retrieval hit-rate and citation accuracy:
+
+    python eval/run_eval.py
