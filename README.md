@@ -36,7 +36,7 @@ The hosted site can found at formula1-rag.onrender.com
 
 ### 1. Clone and enter the project
 
-    git clone this repo
+    git clone https://github.com/CollinShuey/F1-RAG-Public.git
 
 ### 2. Create and activate a virtual environment
 
