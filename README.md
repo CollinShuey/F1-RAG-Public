@@ -119,5 +119,7 @@ LangChain only takes over: embed -> store -> retrieve -> prompt -> generate.
 
 Setup + run:
     pip install langchain langchain-classic langchain-anthropic langchain-chroma langchain-huggingface sentence-transformers
-    python langchain_pipeline.py ingest     # build the vector store once
-    python langchain_pipeline.py            # ask questions
+    python langchain_pipeline.py ingest    
+    python langchain_pipeline.py            
+
+Ingest is ran to create chromaDB and the file is ran to ask questions after.
