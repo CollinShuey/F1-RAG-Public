@@ -19,7 +19,7 @@ Setup + run:
 import sys
 from pathlib import Path
 
-import fitz  # PyMuPDF
+import fitz
 from dotenv import load_dotenv
 
 from langchain_core.documents import Document
