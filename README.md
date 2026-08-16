@@ -103,3 +103,21 @@ Open http://127.0.0.1:8000 and ask questions in the browser. Answers render with
 The `eval/` folder contains a test set and a harness that measures retrieval hit-rate and citation accuracy:
 
     python eval/run_eval.py
+
+## Langchain comparison
+
+LangChain version of the F1 Regulations RAG pipeline, is found in langchain_pipeline.py
+
+NOT used by the deployed site. Production runs the from-scratch pipeline
+(ingest / embedder / retriever / generator / agent). This file rebuilds the
+*base* RAG flow with LangChain to compare hand-rolled vs. framework code.
+
+Kept identical for a fair comparison:
+  - the same structure-aware chunker (chunk_by_structure from chunker.py)
+  - the same embedding model (all-MiniLM-L6-v2)
+LangChain only takes over: embed -> store -> retrieve -> prompt -> generate.
+
+Setup + run:
+    pip install langchain langchain-classic langchain-anthropic langchain-chroma langchain-huggingface sentence-transformers
+    python langchain_pipeline.py ingest     # build the vector store once
+    python langchain_pipeline.py            # ask questions
