@@ -8,7 +8,7 @@ An AI-powered chatbot that answers questions about FIA Formula 1 regulations usi
 
 This is in progress public version, the site hosted is based on the private repository. This is so you can download it yourself, follow the quickstart below, and import your own keys.
 
-The hosted site can found at formula1-rag.onrender.com
+The hosted site can found [here](https://formula1-rag.onrender.com).
  
 ## How it works
  
