@@ -118,8 +118,11 @@ the same embedding model (all-MiniLM-L6-v2)
 LangChain only takes over: embed → store → retrieve → prompt → generate.
 
 Setup and run
+
 pip install langchain langchain-classic langchain-anthropic langchain-chroma langchain-huggingface sentence-transformers
+
 python langchain_pipeline.py ingest
+
 python langchain_pipeline.py
 
-Ingest is run to create the ChromaDB, the file is then run to ask questions.
+Ingest is run to create the ChromaDB; the file is then run to ask questions.
