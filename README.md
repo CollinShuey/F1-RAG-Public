@@ -104,22 +104,22 @@ The `eval/` folder contains a test set and a harness that measures retrieval hit
 
     python eval/run_eval.py
 
-## Langchain comparison
+## LangChain comparison
 
-LangChain version of the F1 Regulations RAG pipeline, is found in langchain_pipeline.py
+A LangChain version of the F1 Regulations RAG pipeline is found in langchain_pipeline.py.
 
-NOT used by the deployed site. Production runs the from-scratch pipeline
-(ingest / embedder / retriever / generator / agent). This file rebuilds the
-*base* RAG flow with LangChain to compare hand-rolled vs. framework code.
+Not used by the deployed site. Production runs the from-scratch pipeline (ingest / embedder / retriever / generator / agent). This file rebuilds the base RAG flow with LangChain to compare hand-rolled vs. framework code.
 
 Kept identical for a fair comparison:
-  - the same structure-aware chunker (chunk_by_structure from chunker.py)
-  - the same embedding model (all-MiniLM-L6-v2)
-LangChain only takes over: embed -> store -> retrieve -> prompt -> generate.
 
-Setup + run:
-    pip install langchain langchain-classic langchain-anthropic langchain-chroma langchain-huggingface sentence-transformers
-    python langchain_pipeline.py ingest
-    python langchain_pipeline.py            
+the same structure-aware chunker (chunk_by_structure from chunker.py)
+the same embedding model (all-MiniLM-L6-v2)
 
-Ingest is ran to create chromaDB and the file is ran to ask questions after.
+LangChain only takes over: embed → store → retrieve → prompt → generate.
+
+Setup and run
+pip install langchain langchain-classic langchain-anthropic langchain-chroma langchain-huggingface sentence-transformers
+python langchain_pipeline.py ingest
+python langchain_pipeline.py
+
+Ingest is run to create the ChromaDB, the file is then run to ask questions.
