@@ -126,3 +126,35 @@ Setup and run:
     python langchain_pipeline.py
 
 Ingest is run to create the ChromaDB, the file is then run to ask questions.
+
+
+## Running with Docker
+
+The app is containerized with Docker.
+
+**Prerequisites**
+- Docker installed and running
+- A `.env` file in the project root (see below)
+- Your own FIA regulation PDFs in `data/regulations/`, with the vector store built
+  via the ingestion pipeline — the PDFs and prebuilt vector DB are **not** included
+  in this repo (copyright), so the container won't answer questions until you add them.
+
+**1. Create a `.env` file in the project root:**
+
+DEBUG=True
+SECRET_KEY=any-long-random-string
+ANTHROPIC_API_KEY=your-anthropic-api-key
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+
+**2. Build the image:**
+
+docker build -t f1-rag .
+
+
+**3. Run the container:**
+
+docker run --rm -p 8000:8000 --env-file .env f1-rag
+
+
+Open http://localhost:8000 and start asking questions.
